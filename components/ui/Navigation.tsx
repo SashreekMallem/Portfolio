@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import DynamicContact from "./DynamicContact";
 
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -66,12 +67,7 @@ export default function Navigation() {
             </nav>
             
             {/* Contact Button (Desktop) */}
-            <a 
-              href="mailto:sashreek@example.com"
-              className="hidden md:flex px-4 py-2 rounded-full text-sm bg-neon-cyan/10 text-neon-cyan hover:bg-neon-cyan/20 transition-colors"
-            >
-              Contact Me
-            </a>
+            <DynamicContact className="hidden md:flex" />
             
             {/* Mobile Menu Button */}
             <button
@@ -118,13 +114,10 @@ export default function Navigation() {
                   </Link>
                 ))}
                 
-                <a 
-                  href="mailto:sashreek@example.com"
-                  className="inline-block px-6 py-3 mt-4 rounded-full bg-neon-cyan/10 text-neon-cyan hover:bg-neon-cyan/20 transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Contact Me
-                </a>
+                <DynamicContact 
+                  className="inline-block mt-4" 
+                  buttonText="Contact Me"
+                />
                 
                 {/* Social Media Links */}
                 <div className="flex space-x-6 mt-8">

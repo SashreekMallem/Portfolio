@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Navigation from "@/components/ui/Navigation";
 import { useState, useEffect } from "react";
+import { useContactInfo } from "@/components/ui/DynamicContact";
+import type { ContactType } from "@/components/ui/DynamicContact";
 
 
 
@@ -36,6 +38,11 @@ export default function CollaboratePage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [calendarSettings, setCalendarSettings] = useState<CalendarSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showContactInfo, setShowContactInfo] = useState<ContactType | null>(null);
+
+  // Get contact info for different types
+  const hireContactInfo = useContactInfo("hire");
+  const collaborateContactInfo = useContactInfo("collaborate");
 
   useEffect(() => {
     fetchCollaborateData();
@@ -220,14 +227,22 @@ export default function CollaboratePage() {
               <div className="flex-1 glassmorphism p-6 rounded-xl">
                 <h3 className="text-xl font-bold mb-4">For Developers</h3>
                 <p className="text-white/70 mb-6">
-                  Interested in joining one of the projects? Let's talk about how we can collaborate.
+                  Interested in joining one of the projects? Let&apos;s talk about how we can collaborate.
                 </p>
-                <button 
-                  onClick={() => setActiveForm("developer")}
-                  className="w-full py-3 bg-neon-cyan/10 text-neon-cyan rounded-lg hover:bg-neon-cyan/20 transition-colors"
-                >
-                  Connect as a Developer
-                </button>
+                <div className="space-y-3">
+                  <button 
+                    onClick={() => setActiveForm("developer")}
+                    className="w-full py-3 bg-neon-cyan/10 text-neon-cyan rounded-lg hover:bg-neon-cyan/20 transition-colors"
+                  >
+                    Connect as a Developer
+                  </button>
+                  <button 
+                    onClick={() => setShowContactInfo(showContactInfo === "collaborate" ? null : "collaborate")}
+                    className="w-full py-2 text-sm text-neon-cyan/80 hover:text-neon-cyan border border-neon-cyan/30 rounded-lg hover:border-neon-cyan/50 transition-colors"
+                  >
+                    {showContactInfo === "collaborate" ? "Hide Contact Info" : "Show Contact Info"}
+                  </button>
+                </div>
               </div>
               
               <div className="flex-1 glassmorphism p-6 rounded-xl">
@@ -235,14 +250,87 @@ export default function CollaboratePage() {
                 <p className="text-white/70 mb-6">
                   Looking for early-stage investment opportunities? Get access to pitch decks.
                 </p>
-                <button 
-                  onClick={() => setActiveForm("investor")}
-                  className="w-full py-3 bg-neon-violet/10 text-neon-violet rounded-lg hover:bg-neon-violet/20 transition-colors"
-                >
-                  Connect as an Investor
-                </button>
+                <div className="space-y-3">
+                  <button 
+                    onClick={() => setActiveForm("investor")}
+                    className="w-full py-3 bg-neon-violet/10 text-neon-violet rounded-lg hover:bg-neon-violet/20 transition-colors"
+                  >
+                    Connect as an Investor
+                  </button>
+                  <button 
+                    onClick={() => setShowContactInfo(showContactInfo === "collaborate" ? null : "collaborate")}
+                    className="w-full py-2 text-sm text-neon-violet/80 hover:text-neon-violet border border-neon-violet/30 rounded-lg hover:border-neon-violet/50 transition-colors"
+                  >
+                    {showContactInfo === "collaborate" ? "Hide Contact Info" : "Show Contact Info"}
+                  </button>
+                </div>
               </div>
             </div>
+            
+            {/* Contact Information Display */}
+            {showContactInfo && (
+              <motion.div 
+                className="mt-6 glassmorphism p-6 rounded-xl"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h4 className="text-lg font-bold mb-4 text-center">
+                  Contact Information for Collaboration & Investment
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                    <label className="text-sm text-white/70 block mb-2">Email</label>
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-medium">{collaborateContactInfo.email}</span>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(collaborateContactInfo.email)}
+                        className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                        title="Copy email"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.24264C20 6.44699 19.6839 5.68393 19.1213 5.12132L16.8787 2.87868C16.3161 2.31607 15.553 2 14.7574 2H10C8.89543 2 8 2.89543 8 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V7C4 5.89543 4.89543 5 6 5H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                    <label className="text-sm text-white/70 block mb-2">Phone</label>
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-medium">{collaborateContactInfo.phone}</span>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(collaborateContactInfo.phone)}
+                        className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                        title="Copy phone number"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M8 4V16C8 17.1046 8.89543 18 10 18H18C19.1046 18 20 17.1046 20 16V7.24264C20 6.44699 19.6839 5.68393 19.1213 5.12132L16.8787 2.87868C16.3161 2.31607 15.553 2 14.7574 2H10C8.89543 2 8 2.89543 8 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M16 18V20C16 21.1046 15.1046 22 14 22H6C4.89543 22 4 21.1046 4 20V7C4 5.89543 4.89543 5 6 5H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3 mt-4">
+                  <a
+                    href={`mailto:${collaborateContactInfo.email}`}
+                    className="flex-1 py-3 px-4 rounded-lg font-medium text-center bg-neon-violet/20 text-neon-violet hover:bg-neon-violet/30 transition-colors"
+                  >
+                    Send Email
+                  </a>
+                  <a
+                    href={`tel:${collaborateContactInfo.phone}`}
+                    className="flex-1 py-3 px-4 rounded-lg font-medium text-center bg-neon-violet/10 text-neon-violet hover:bg-neon-violet/20 border border-neon-violet/30 transition-colors"
+                  >
+                    Call Now
+                  </a>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
           
           {/* Contact Form - Conditionally rendered */}

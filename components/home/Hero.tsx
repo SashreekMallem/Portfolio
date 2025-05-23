@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import ParticlesBackground from "./ParticlesBackground";
 import { HomepageContent } from "@/lib/supabase";
+import DynamicContact from "@/components/ui/DynamicContact";
 
 export default function Hero() {
   const [content, setContent] = useState<HomepageContent | null>(null);
@@ -103,6 +104,10 @@ export default function Hero() {
               >
                 {displayContent.hero_secondary_cta_text}
               </Link>
+              <DynamicContact 
+                className="px-6 py-3 bg-neon-violet/10 text-neon-violet border border-neon-violet/20 hover:bg-neon-violet/20"
+                buttonText="Contact Me"
+              />
             </div>
           </motion.div>
           
