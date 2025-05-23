@@ -1,12 +1,10 @@
 {
   "buildCommand": "npm run build",
   "ignoreCommand": "echo \"Warning: Ignoring ESLint errors during build\"",
-  "settings": {
-    "eslint": {
-      "ignoreDuringBuilds": true
-    },
-    "typescript": {
-      "ignoreBuildErrors": true
-    }
+  "eslint": {
+    "ignoreDuringBuilds": true
+  },
+  "typescript": {
+    "ignoreBuildErrors": true
   }
 }
