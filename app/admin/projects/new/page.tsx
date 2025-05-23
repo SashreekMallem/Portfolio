@@ -165,21 +165,32 @@ export default function NewProjectPage() {
       setIsSaving(true);
       setError("");
       
+      // Generate a UUID for the project
+      const projectId = crypto.randomUUID();
+      
+      // Prepare the data with the generated ID
+      const projectData = {
+        ...formData,
+        id: projectId
+      };
+      
       const response = await fetch("/api/projects", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(projectData)
       });
       
       if (!response.ok) {
-        throw new Error("Failed to create project");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create project");
       }
       
       const newProject = await response.json();
       router.push("/admin/projects");
     } catch (err: any) {
+      console.error("Error creating project:", err);
       setError(err.message || "Failed to create project");
       window.scrollTo(0, 0);
     } finally {

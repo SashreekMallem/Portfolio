@@ -1,53 +1,108 @@
 import { NextResponse } from 'next/server';
-import { 
-  supabase, 
-  formatCollaborateLookingFor, 
-  formatCollaborateTestimonial,
-  formatCollaborateCalendarSettings,
-  formatCollaborateInquiry
-} from '@/lib/supabase';
+
+// Fallback data when Supabase is not available
+const fallbackData = {
+  lookingFor: [
+    {
+      id: '1',
+      title: 'Full-Stack Developers',
+      description: 'Experienced developers who can build scalable web applications using modern tech stacks.',
+      color_theme: 'neon-cyan' as const
+    },
+    {
+      id: '2', 
+      title: 'AI/ML Engineers',
+      description: 'Specialists in machine learning and AI who can integrate intelligent features into products.',
+      color_theme: 'neon-violet' as const
+    },
+    {
+      id: '3',
+      title: 'Strategic Investors',
+      description: 'Investors who bring not just capital but also valuable industry connections and expertise.',
+      color_theme: 'neon-lime' as const
+    }
+  ],
+  testimonials: [
+    {
+      id: '1',
+      quote: 'Working with Sashreek has been an incredible experience. His technical expertise and business acumen make him an ideal collaborator.',
+      author_name: 'Future Collaborator',
+      author_title: 'CTO',
+      author_company: 'TechCorp',
+      author_image_url: null
+    }
+  ],
+  calendarSettings: {
+    calendly_url: 'https://calendly.com/sashreek',
+    description: 'Book a 30-min chat'
+  }
+};
 
 // GET handler for fetching collaborate page data
 export async function GET() {
   try {
-    // Fetch "Who I'm Looking For" data
-    const { data: lookingForData, error: lookingForError } = await supabase
-      .from('collaborate_looking_for')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
+    // Try to import and use Supabase
+    let lookingForData = null;
+    let testimonialsData = null;
+    let calendarData = null;
 
-    if (lookingForError) {
-      console.error('Error fetching looking for data:', lookingForError);
-    }
+    try {
+      const { 
+        supabase, 
+        formatCollaborateLookingFor, 
+        formatCollaborateTestimonial,
+        formatCollaborateCalendarSettings
+      } = await import('@/lib/supabase');
 
-    // Fetch testimonials
-    const { data: testimonialsData, error: testimonialsError } = await supabase
-      .from('collaborate_testimonials')
-      .select('*')
-      .eq('is_active', true)
-      .order('is_featured', { ascending: false })
-      .order('sort_order', { ascending: true });
+      // Fetch "Who I'm Looking For" data
+      const { data: lookingFor, error: lookingForError } = await supabase
+        .from('collaborate_looking_for')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order', { ascending: true });
 
-    if (testimonialsError) {
-      console.error('Error fetching testimonials:', testimonialsError);
-    }
+      if (!lookingForError && lookingFor) {
+        lookingForData = lookingFor.map(formatCollaborateLookingFor);
+      }
 
-    // Fetch calendar settings
-    const { data: calendarData, error: calendarError } = await supabase
-      .from('collaborate_calendar_settings')
-      .select('*')
-      .eq('is_active', true)
-      .single();
+      // Fetch testimonials
+      const { data: testimonials, error: testimonialsError } = await supabase
+        .from('collaborate_testimonials')
+        .select('*')
+        .eq('is_active', true)
+        .order('is_featured', { ascending: false })
+        .order('sort_order', { ascending: true });
 
-    if (calendarError) {
-      console.error('Error fetching calendar settings:', calendarError);
+      if (!testimonialsError && testimonials) {
+        testimonialsData = testimonials.map(formatCollaborateTestimonial);
+      }
+
+      // Fetch calendar settings
+      const { data: calendar, error: calendarError } = await supabase
+        .from('collaborate_calendar_settings')
+        .select('*')
+        .eq('is_active', true)
+        .single();
+
+      if (!calendarError && calendar) {
+        calendarData = formatCollaborateCalendarSettings(calendar);
+      }
+    } catch (supabaseError) {
+      console.warn('Supabase not available, using fallback data:', supabaseError);
     }
 
     return NextResponse.json({
-      lookingFor: lookingForData ? lookingForData.map(formatCollaborateLookingFor) : [],
-      testimonials: testimonialsData ? testimonialsData.map(formatCollaborateTestimonial) : [],
-      calendarSettings: calendarData ? formatCollaborateCalendarSettings(calendarData) : null
+      lookingFor: lookingForData || fallbackData.lookingFor,
+      testimonials: testimonialsData || fallbackData.testimonials,
+      calendarSettings: calendarData || fallbackData.calendarSettings
+    });
+
+  } catch (error) {
+    console.error('Error fetching collaborate data:', error);
+    // Return fallback data even on error
+    return NextResponse.json(fallbackData);
+  }
+}
     });
 
   } catch (error) {

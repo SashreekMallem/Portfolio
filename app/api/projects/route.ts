@@ -29,6 +29,19 @@ export async function POST(request: Request) {
   try {
     const projectData = await request.json();
     
+    // Validate required fields
+    if (!projectData.title || !projectData.emoji) {
+      return NextResponse.json(
+        { error: 'Title and emoji are required' },
+        { status: 400 }
+      );
+    }
+    
+    // Generate ID if not provided
+    if (!projectData.id) {
+      projectData.id = crypto.randomUUID();
+    }
+    
     const { data, error } = await supabase
       .from('projects')
       .insert([
@@ -36,23 +49,28 @@ export async function POST(request: Request) {
           id: projectData.id,
           title: projectData.title,
           emoji: projectData.emoji,
-          tagline: projectData.tagline,
-          description: projectData.description,
-          full_description: projectData.fullDescription,
-          status: projectData.status,
-          tags: projectData.tags,
-          tech_stack: projectData.techStack,
-          featured: projectData.featured,
-          demo_url: projectData.demoUrl,
-          images: projectData.images,
-          features: projectData.features,
-          testimonials: projectData.testimonials,
+          tagline: projectData.tagline || '',
+          description: projectData.description || '',
+          full_description: projectData.fullDescription || '',
+          status: projectData.status || 'concept',
+          tags: projectData.tags || [],
+          tech_stack: projectData.techStack || [],
+          featured: projectData.featured || false,
+          demo_url: projectData.demoUrl || null,
+          images: projectData.images || [],
+          features: projectData.features || [],
+          testimonials: projectData.testimonials || [],
         }
       ])
       .select();
       
     if (error) {
+      console.error('Supabase error:', error);
       return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    
+    if (!data || data.length === 0) {
+      return NextResponse.json({ error: 'Failed to create project' }, { status: 400 });
     }
     
     return NextResponse.json(formatProject(data[0]));
