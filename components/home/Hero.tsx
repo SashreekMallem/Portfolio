@@ -1,10 +1,74 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import ParticlesBackground from "./ParticlesBackground";
+import { HomepageContent } from "@/lib/supabase";
 
 export default function Hero() {
+  const [content, setContent] = useState<HomepageContent | null>(null);
+  const [projectStats, setProjectStats] = useState<string>("7 Projects • 3 MVPs • 2 Live Products");
+
+  useEffect(() => {
+    fetchContent();
+    fetchProjectStats();
+  }, []);
+
+  const fetchContent = async () => {
+    try {
+      const response = await fetch('/api/homepage/content');
+      if (response.ok) {
+        const data = await response.json();
+        setContent(data);
+      }
+    } catch (error) {
+      console.error('Error fetching homepage content:', error);
+    }
+  };
+
+  const fetchProjectStats = async () => {
+    try {
+      const response = await fetch('/api/projects/stats');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.statsString) {
+          setProjectStats(data.statsString);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching project stats:', error);
+    }
+  };
+
+  // Use default content if none loaded yet
+  const displayContent = content || {
+    hero_headline: "I build useful things",
+    hero_highlight_word: "useful", 
+    hero_intro_text: "Hi, I'm Sashreek Mallem. I build AI-powered startups that solve real-world problems. Currently working on FairHire, a platform that eliminates bias in hiring.",
+    hero_primary_cta_text: "See My Projects",
+    hero_primary_cta_url: "/projects",
+    hero_secondary_cta_text: "Let's Collaborate", 
+    hero_secondary_cta_url: "/collaborate",
+    hero_scroll_text: "Scroll to explore"
+  };
+
+  const renderHeadline = () => {
+    const headline = displayContent.hero_headline;
+    const highlightWord = displayContent.hero_highlight_word;
+    
+    if (headline.includes(highlightWord)) {
+      const parts = headline.split(highlightWord);
+      return (
+        <>
+          {parts[0]}<span className="text-neon-cyan">{highlightWord}</span>{parts[1]}
+        </>
+      );
+    }
+    
+    return headline;
+  };
+
   return (
     <section className="relative min-h-screen flex items-center">
       {/* Particles background */}
@@ -19,26 +83,25 @@ export default function Hero() {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
-              I build <span className="text-neon-cyan">useful</span> things
+              {renderHeadline()}
             </h1>
             
             <p className="text-xl md:text-2xl text-white/80 mb-8">
-              Hi, I'm Sashreek Mallem. I build AI-powered startups that solve real-world problems. 
-              Currently working on FairHire, a platform that eliminates bias in hiring.
+              {displayContent.hero_intro_text}
             </p>
             
             <div className="flex flex-wrap gap-4">
               <Link 
-                href="/projects"
+                href={displayContent.hero_primary_cta_url}
                 className="px-6 py-3 bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/20 rounded-lg hover:bg-neon-cyan/20 transition-all"
               >
-                See My Projects
+                {displayContent.hero_primary_cta_text}
               </Link>
               <Link 
-                href="/collaborate"
+                href={displayContent.hero_secondary_cta_url}
                 className="px-6 py-3 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all"
               >
-                Let's Collaborate
+                {displayContent.hero_secondary_cta_text}
               </Link>
             </div>
           </motion.div>
@@ -50,7 +113,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <div className="w-12 h-[2px] bg-white/20"></div>
-            <div className="text-sm text-white/50">7 Projects • 3 MVPs • 2 Live Products</div>
+            <div className="text-sm text-white/50">{projectStats}</div>
           </motion.div>
         </div>
       </div>
@@ -62,7 +125,7 @@ export default function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8 }}
       >
-        <span className="text-white/50 text-sm">Scroll to explore</span>
+        <span className="text-white/50 text-sm">{displayContent.hero_scroll_text}</span>
         <motion.div 
           animate={{ y: [0, 10, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}

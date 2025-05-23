@@ -6,7 +6,8 @@ export async function GET(
   context: { params: { id: string } }
 ) {
   try {
-    const id = await context.params.id;
+    const params = await context.params;
+    const id = params.id;
     
     const { data, error } = await supabase
       .from('projects')
@@ -36,8 +37,29 @@ export async function PATCH(
   context: { params: { id: string } }
 ) {
   try {
-    const id = await context.params.id;
+    const params = await context.params;
+    const id = params.id;
     const projectData = await request.json();
+    
+    console.log('PATCH request for project ID:', id);
+    console.log('Project data received:', projectData);
+    
+    // First check if the project exists
+    const { data: existingProject, error: selectError } = await supabase
+      .from('projects')
+      .select('id')
+      .eq('id', id)
+      .single();
+    
+    console.log('Project exists check:', { existingProject, selectError });
+    
+    if (selectError) {
+      console.error('Project not found:', selectError);
+      return NextResponse.json(
+        { error: 'Project not found' },
+        { status: 404 }
+      );
+    }
     
     // Prepare the update data
     const updateData: Record<string, any> = {};
@@ -56,21 +78,33 @@ export async function PATCH(
     if (projectData.features !== undefined) updateData.features = projectData.features;
     if (projectData.testimonials !== undefined) updateData.testimonials = projectData.testimonials;
     
+    console.log('Update data prepared:', updateData);
+    
+    // Now update the project
     const { data, error } = await supabase
       .from('projects')
       .update(updateData)
       .eq('id', id)
-      .select()
-      .single();
+      .select();
+    
+    console.log('Supabase update result:', { data, error });
     
     if (error) {
+      console.error('Supabase error:', error);
       return NextResponse.json(
         { error: error.message },
-        { status: error.code === 'PGRST116' ? 404 : 400 }
+        { status: 400 }
       );
     }
     
-    return NextResponse.json(formatProject(data));
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { error: 'Update failed - no rows affected. This might be due to Row Level Security policies.' },
+        { status: 403 }
+      );
+    }
+    
+    return NextResponse.json(formatProject(data[0]));
   } catch (error) {
     console.error(`Error updating project:`, error);
     return NextResponse.json(
@@ -85,7 +119,8 @@ export async function DELETE(
   context: { params: { id: string } }
 ) {
   try {
-    const id = await context.params.id;
+    const params = await context.params;
+    const id = params.id;
     
     const { error } = await supabase
       .from('projects')

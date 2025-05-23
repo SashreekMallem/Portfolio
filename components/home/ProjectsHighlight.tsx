@@ -3,42 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
-
-// Mock featured projects data
-const featuredProjects = [
-  {
-    id: "fairhire",
-    title: "FairHire",
-    emoji: "🤝",
-    tagline: "AI-powered skill verification platform that eliminates hiring bias",
-    status: "live",
-    tags: ["React", "GPT-4", "Python", "FastAPI"]
-  },
-  {
-    id: "eduflix",
-    title: "EduFlix",
-    emoji: "🎓",
-    tagline: "Netflix for education with AI-generated learning paths",
-    status: "in-dev",
-    tags: ["Next.js", "Supabase", "OpenAI", "Vercel"]
-  },
-  {
-    id: "splitfair",
-    title: "SplitFair",
-    emoji: "💸",
-    tagline: "Smart expense splitting app for roommates that predicts recurring bills",
-    status: "mvp",
-    tags: ["Next.js", "Prisma", "PostgreSQL"]
-  },
-  {
-    id: "habithero",
-    title: "HabitHero",
-    emoji: "✅",
-    tagline: "Gamified habit tracker with AI accountability coach",
-    status: "concept",
-    tags: ["React Native", "Firebase", "GPT-4"]
-  }
-];
+import { type Project } from "@/lib/supabase";
 
 function StatusBadge({ status }: { status: string }) {
   const getBadgeColor = () => {
@@ -72,6 +37,33 @@ export default function ProjectsHighlight() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);
+  const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch featured projects on component mount
+  useEffect(() => {
+    async function fetchFeaturedProjects() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/projects');
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch projects: ${response.statusText}`);
+        }
+        
+        const data: Project[] = await response.json();
+        // Filter for featured projects and limit to 4
+        const featured = data.filter(project => project.featured).slice(0, 4);
+        setFeaturedProjects(featured);
+      } catch (err) {
+        console.error('Error fetching featured projects:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchFeaturedProjects();
+  }, []);
   
   // Update scroll position for the progress bar
   const handleScroll = () => {
@@ -142,55 +134,84 @@ export default function ProjectsHighlight() {
           ref={scrollContainerRef}
           className="flex space-x-6 overflow-x-auto pb-6 hide-scrollbar"
         >
-          {featuredProjects.map((project, index) => (
-            <motion.div 
-              key={project.id}
-              className="min-w-[280px] sm:min-w-[320px] md:min-w-[380px]"
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ y: -5 }}
-            >
-              <Link href={`/projects/${project.id}`}>
-                <div className="h-full glassmorphism p-6 rounded-xl cursor-pointer relative group overflow-hidden">
-                  {/* Shimmer effect for featured projects */}
-                  <div className="shimmer"></div>
-                  
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-4xl">{project.emoji}</div>
-                      <StatusBadge status={project.status} />
-                    </div>
+          {loading ? (
+            // Loading skeleton
+            Array.from({ length: 4 }).map((_, index) => (
+              <div 
+                key={index}
+                className="min-w-[280px] sm:min-w-[320px] md:min-w-[380px] glassmorphism p-6 rounded-xl animate-pulse"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-gray-700 rounded"></div>
+                  <div className="w-16 h-6 bg-gray-700 rounded-full"></div>
+                </div>
+                <div className="w-32 h-8 bg-gray-700 rounded mb-2"></div>
+                <div className="w-full h-16 bg-gray-700 rounded mb-6"></div>
+                <div className="flex flex-wrap gap-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="w-16 h-6 bg-gray-700 rounded-full"></div>
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : featuredProjects.length > 0 ? (
+            featuredProjects.map((project, index) => (
+              <motion.div 
+                key={project.id}
+                className="min-w-[280px] sm:min-w-[320px] md:min-w-[380px]"
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ y: -5 }}
+              >
+                <Link href={`/projects/${project.id}`}>
+                  <div className="h-full glassmorphism p-6 rounded-xl cursor-pointer relative group overflow-hidden">
+                    {/* Shimmer effect for featured projects */}
+                    <div className="shimmer"></div>
                     
-                    <h3 className="text-2xl font-bold mb-2 group-hover:text-neon-cyan transition-colors">
-                      {project.title}
-                    </h3>
-                    
-                    <p className="text-white/70 mb-6 min-h-[60px]">
-                      {project.tagline}
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-2">
-                      {project.tags.slice(0, 3).map((tag) => (
-                        <span 
-                          key={tag}
-                          className="text-xs px-2 py-1 bg-white/10 rounded-full"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                      {project.tags.length > 3 && (
-                        <span className="text-xs px-2 py-1 bg-white/10 rounded-full">
-                          +{project.tags.length - 3} more
-                        </span>
-                      )}
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="text-4xl">{project.emoji}</div>
+                        <StatusBadge status={project.status} />
+                      </div>
+                      
+                      <h3 className="text-2xl font-bold mb-2 group-hover:text-neon-cyan transition-colors">
+                        {project.title}
+                      </h3>
+                      
+                      <p className="text-white/70 mb-6 min-h-[60px]">
+                        {project.tagline}
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        {project.tags.slice(0, 3).map((tag) => (
+                          <span 
+                            key={tag}
+                            className="text-xs px-2 py-1 bg-white/10 rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {project.tags.length > 3 && (
+                          <span className="text-xs px-2 py-1 bg-white/10 rounded-full">
+                            +{project.tags.length - 3} more
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+                </Link>
+              </motion.div>
+            ))
+          ) : (
+            // Empty state
+            <div className="min-w-[280px] sm:min-w-[320px] md:min-w-[380px] glassmorphism p-6 rounded-xl text-center">
+              <div className="text-4xl mb-4">🚀</div>
+              <h3 className="text-xl font-bold mb-2">Projects Coming Soon</h3>
+              <p className="text-white/70">Featured projects will appear here once they're marked as featured in the admin panel.</p>
+            </div>
+          )}
         </div>
       </div>
     </section>
