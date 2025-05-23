@@ -101,10 +101,17 @@ export default function EditProjectPage() {
     e.preventDefault();
     if (!tagInput.trim()) return;
     
-    setFormData((prev) => ({
-      ...prev,
-      tags: [...(prev.tags || []), tagInput.trim()]
-    }));
+    console.log('Adding tag:', tagInput.trim());
+    console.log('Current tags before add:', formData.tags);
+    
+    setFormData((prev) => {
+      const newTags = [...(prev.tags || []), tagInput.trim()];
+      console.log('New tags after add:', newTags);
+      return {
+        ...prev,
+        tags: newTags
+      };
+    });
     setTagInput("");
   };
   
@@ -121,10 +128,17 @@ export default function EditProjectPage() {
     e.preventDefault();
     if (!techStackInput.trim()) return;
     
-    setFormData((prev) => ({
-      ...prev,
-      techStack: [...(prev.techStack || []), techStackInput.trim()]
-    }));
+    console.log('Adding tech stack:', techStackInput.trim());
+    console.log('Current techStack before add:', formData.techStack);
+    
+    setFormData((prev) => {
+      const newTechStack = [...(prev.techStack || []), techStackInput.trim()];
+      console.log('New techStack after add:', newTechStack);
+      return {
+        ...prev,
+        techStack: newTechStack
+      };
+    });
     setTechStackInput("");
   };
   
@@ -206,6 +220,13 @@ export default function EditProjectPage() {
       setIsSaving(true);
       setError("");
       setSuccess(false);
+      
+      // Debug: Log what we're sending
+      console.log('=== EDIT FORM SUBMISSION DEBUG ===');
+      console.log('formData.tags:', formData.tags);
+      console.log('formData.techStack:', formData.techStack);
+      console.log('Full formData:', JSON.stringify(formData, null, 2));
+      console.log('=== END DEBUG ===');
       
       const response = await fetch(`/api/projects/${projectId}`, {
         method: "PATCH",
@@ -390,7 +411,7 @@ export default function EditProjectPage() {
                   type="url"
                   id="demoUrl"
                   name="demoUrl"
-                  value={formData.demoUrl}
+                  value={formData.demoUrl || ""}
                   onChange={handleInputChange}
                   className="w-full py-3 px-4 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-cyan/50 focus:border-transparent"
                   placeholder="https://example.com"
@@ -425,12 +446,21 @@ export default function EditProjectPage() {
                   type="text"
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTag(e);
+                    }
+                  }}
                   className="w-full py-3 px-4 bg-white/5 border border-white/10 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-neon-cyan/50 focus:border-transparent"
                   placeholder="Enter a tag"
                 />
                 <button
                   type="button"
-                  onClick={handleAddTag}
+                  onClick={(e) => {
+                    console.log('Tag Add button clicked!');
+                    handleAddTag(e);
+                  }}
                   className="px-4 py-3 bg-neon-cyan text-gray-900 rounded-r-lg hover:bg-neon-cyan/80 transition-colors"
                 >
                   Add
@@ -467,12 +497,21 @@ export default function EditProjectPage() {
                   type="text"
                   value={techStackInput}
                   onChange={(e) => setTechStackInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTechStack(e);
+                    }
+                  }}
                   className="w-full py-3 px-4 bg-white/5 border border-white/10 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-neon-cyan/50 focus:border-transparent"
                   placeholder="Enter a technology"
                 />
                 <button
                   type="button"
-                  onClick={handleAddTechStack}
+                  onClick={(e) => {
+                    console.log('Tech Stack Add button clicked!');
+                    handleAddTechStack(e);
+                  }}
                   className="px-4 py-3 bg-neon-cyan text-gray-900 rounded-r-lg hover:bg-neon-cyan/80 transition-colors"
                 >
                   Add
