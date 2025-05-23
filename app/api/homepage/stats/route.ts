@@ -14,7 +14,7 @@ type WebsiteStats = {
 export async function GET() {
   try {
     // First check if we have custom stats in the database
-    const { data: statsData, error: statsError } = await supabase
+    const { data: statsData } = await supabase
       .from('homepage_stats')
       .select('*')
       .single();

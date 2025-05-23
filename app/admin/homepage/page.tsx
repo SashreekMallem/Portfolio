@@ -132,7 +132,7 @@ export default function HomepageAdmin() {
           ].map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key as any)}
+              onClick={() => setActiveTab(tab.key as 'hero' | 'why-build' | 'principles' | 'contact')}
               className={`px-4 py-2 rounded-lg font-medium transition-all ${
                 activeTab === tab.key
                   ? 'bg-neon-cyan text-dark-900'

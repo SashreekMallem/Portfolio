@@ -116,7 +116,7 @@ export default function ProjectsPage() {
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Projects</h1>
             <p className="text-xl text-white/80">
-              A collection of AI-powered startups I've built, 
+              A collection of AI-powered startups I&apos;ve built, 
               from concept to fully launched products.
             </p>
           </motion.div>

@@ -106,7 +106,7 @@ export default function ProjectsHighlight() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-3">Featured Projects</h2>
-              <p className="text-white/80">A selection of startups I've built or am building.</p>
+              <p className="text-white/80">A selection of startups I&apos;ve built or am building.</p>
             </div>
             
             <Link 
@@ -209,7 +209,7 @@ export default function ProjectsHighlight() {
             <div className="min-w-[280px] sm:min-w-[320px] md:min-w-[380px] glassmorphism p-6 rounded-xl text-center">
               <div className="text-4xl mb-4">🚀</div>
               <h3 className="text-xl font-bold mb-2">Projects Coming Soon</h3>
-              <p className="text-white/70">Featured projects will appear here once they're marked as featured in the admin panel.</p>
+              <p className="text-white/70">Featured projects will appear here once they&apos;re marked as featured in the admin panel.</p>
             </div>
           )}
         </div>

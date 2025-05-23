@@ -131,6 +131,7 @@ export type CollaborateCalendarSettings = {
 };
 
 // Helper function to format blog post data from database
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function formatBlogPost(post: any): BlogPost {
   return {
     id: post.id,
@@ -148,6 +149,7 @@ export function formatBlogPost(post: any): BlogPost {
 }
 
 // Helper function to format project data from database
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function formatProject(project: any): Project {
   return {
     id: project.id,

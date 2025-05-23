@@ -106,7 +106,7 @@ export default function CollaboratePage() {
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-6 text-center">Let's Collaborate</h1>
             <p className="text-xl text-white/80 text-center mb-8">
-              I'm always looking for talented people who want to build useful products that solve real problems.
+              I&apos;m always looking for talented people who want to build useful products that solve real problems.
             </p>
           </motion.div>
           
@@ -170,7 +170,7 @@ export default function CollaboratePage() {
             ) : testimonials.length > 0 ? (
               testimonials.filter(t => t.author_name).map((testimonial, index) => (
                 <div key={testimonial.id} className="glassmorphism p-8 rounded-xl relative mb-8">
-                  <div className="text-5xl absolute -top-5 left-6 opacity-50">"</div>
+                  <div className="text-5xl absolute -top-5 left-6 opacity-50">&ldquo;</div>
                   <div className="relative z-10">
                     <p className="text-lg md:text-xl text-white/80 mb-6">
                       {testimonial.quote}
@@ -194,7 +194,7 @@ export default function CollaboratePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-5xl absolute -bottom-10 right-6 opacity-50">"</div>
+                  <div className="text-5xl absolute -bottom-10 right-6 opacity-50">&rdquo;</div>
                 </div>
               ))
             ) : (
