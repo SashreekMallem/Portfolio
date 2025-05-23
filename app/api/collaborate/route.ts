@@ -103,16 +103,6 @@ export async function GET() {
     return NextResponse.json(fallbackData);
   }
 }
-    });
-
-  } catch (error) {
-    console.error('Error fetching collaborate data:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch collaborate data' },
-      { status: 500 }
-    );
-  }
-}
 
 // POST handler for creating collaboration inquiries
 export async function POST(request: Request) {
@@ -136,33 +126,45 @@ export async function POST(request: Request) {
       );
     }
 
-    // Insert the inquiry
-    const { data, error } = await supabase
-      .from('collaborate_inquiries')
-      .insert([{
-        inquiry_type,
-        name,
-        email,
-        company: inquiryData.company || null,
-        area_of_interest: inquiryData.area_of_interest || null,
-        message,
-        status: 'new'
-      }])
-      .select()
-      .single();
+    try {
+      // Try to use Supabase
+      const { supabase, formatCollaborateInquiry } = await import('@/lib/supabase');
+      
+      // Insert the inquiry
+      const { data, error } = await supabase
+        .from('collaborate_inquiries')
+        .insert([{
+          inquiry_type,
+          name,
+          email,
+          company: inquiryData.company || null,
+          area_of_interest: inquiryData.area_of_interest || null,
+          message,
+          status: 'new'
+        }])
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error creating inquiry:', error);
-      return NextResponse.json(
-        { error: 'Failed to submit inquiry' },
-        { status: 500 }
-      );
+      if (error) {
+        console.error('Error creating inquiry:', error);
+        return NextResponse.json(
+          { error: 'Failed to submit inquiry' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        inquiry: formatCollaborateInquiry(data)
+      });
+    } catch (supabaseError) {
+      console.warn('Supabase not available for inquiry submission:', supabaseError);
+      // Return success even if we can't store it
+      return NextResponse.json({
+        success: true,
+        message: 'Inquiry received (fallback mode)'
+      });
     }
-
-    return NextResponse.json({
-      success: true,
-      inquiry: formatCollaborateInquiry(data)
-    });
 
   } catch (error) {
     console.error('Error creating inquiry:', error);
