@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState, useEffect } from "react";
 import { type Project } from "@/lib/supabase";
 
@@ -34,6 +35,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function ProjectsHighlight() {
+  const router = useRouter();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);
@@ -112,7 +114,11 @@ export default function ProjectsHighlight() {
             <Link 
               href="/projects"
               className="inline-flex items-center gap-2 text-neon-cyan hover:underline transition-colors duration-200"
-              onClick={() => console.log('Navigating to /projects')}
+              onClick={() => {
+                console.log('Navigating to /projects');
+                // Ensure the page scrolls to top when navigating
+                setTimeout(() => window.scrollTo(0, 0), 100);
+              }}
             >
               <span>View all projects</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
