@@ -52,8 +52,8 @@ export default function ProjectsHighlight() {
         }
         
         const data: Project[] = await response.json();
-        // Filter for featured projects and limit to 4
-        const featured = data.filter(project => project.featured).slice(0, 4);
+        // Filter for featured projects (show all featured projects)
+        const featured = data.filter(project => project.featured);
         setFeaturedProjects(featured);
       } catch (err) {
         console.error('Error fetching featured projects:', err);
@@ -111,7 +111,8 @@ export default function ProjectsHighlight() {
             
             <Link 
               href="/projects"
-              className="inline-flex items-center gap-2 text-neon-cyan hover:underline"
+              className="inline-flex items-center gap-2 text-neon-cyan hover:underline transition-colors duration-200"
+              onClick={() => console.log('Navigating to /projects')}
             >
               <span>View all projects</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
